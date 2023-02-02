@@ -9,30 +9,23 @@ import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.system.MemoryUtil.NULL;
 
 public class Window {
-  private int width, height;
-  private String title;
-  private long glfwWindow;
+  private int windowWidth, windowHeight;
+  private String windowTitle;
+  private long glfwWindowAddress;
 
-  private float r, g, b, a;
-
-  private static Window window = null;
+  private static Window windowInstance = null;
 
   private Window() {
-    this.width = 1920;
-    this.height = 1080;
-    this.title = "Mario";
-    this.r = 0.f;
-    this.g = 0.f;
-    this.b = 0.f;
-    this.a = 0.f;
+    this.windowWidth = 1920;
+    this.windowHeight = 1080;
+    this.windowTitle = "Mario";
   }
 
-  public static Window get() {
-    if  (window == null) {
-      window = new Window();
+  public static Window getWindowInstance() {
+    if  (windowInstance == null) {
+      windowInstance = new Window();
     }
-
-    return window;
+    return windowInstance;
   }
 
   public void run() {
@@ -40,10 +33,10 @@ public class Window {
     loop();
 
     // Free the memory
-    glfwFreeCallbacks(glfwWindow);
-    glfwDestroyWindow(glfwWindow);
+    glfwFreeCallbacks(glfwWindowAddress);
+    glfwDestroyWindow(glfwWindowAddress);
 
-    //Terminate GLFW and free th error callback
+    //Terminate GLFW and free the error callback
     glfwTerminate();
     glfwSetErrorCallback(null);
   }
@@ -57,35 +50,30 @@ public class Window {
       throw new IllegalStateException("Unable to initialize GLFW.");
     }
 
-    // Configure GLFW
     glfwDefaultWindowHints();
     glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);
     glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
     glfwWindowHint(GLFW_MAXIMIZED, GLFW_TRUE);
 
-    // Create the window
-    glfwWindow = glfwCreateWindow(width, height, title, NULL, NULL);
-    if (glfwWindow == NULL) {
+    glfwWindowAddress = glfwCreateWindow(windowWidth, windowHeight, windowTitle, NULL, NULL);
+    if (glfwWindowAddress == NULL) {
       throw new IllegalStateException("Failed to create the GLFW window.");
     }
 
     // Set GLFW input callbacks
-    glfwSetCursorPosCallback(glfwWindow, MouseListener::mousePosCallback);
-    glfwSetMouseButtonCallback(glfwWindow, MouseListener::mouseButtonCallback);
-    glfwSetScrollCallback(glfwWindow, MouseListener::mouseScrollCallback);
-    glfwSetKeyCallback(glfwWindow, KeyListener::keyCallback);
+    glfwSetCursorPosCallback(glfwWindowAddress, MouseListener::mousePosCallback);
+    glfwSetMouseButtonCallback(glfwWindowAddress, MouseListener::mouseButtonCallback);
+    glfwSetScrollCallback(glfwWindowAddress, MouseListener::mouseScrollCallback);
+    glfwSetKeyCallback(glfwWindowAddress, KeyListener::keyCallback);
 
 
     // Make the OpenGL context current
-    glfwMakeContextCurrent(glfwWindow);
+    glfwMakeContextCurrent(glfwWindowAddress);
     // Enable v-sync
     glfwSwapInterval(1);
 
-    // Make the window visible
-    glfwShowWindow(glfwWindow);
+    glfwShowWindow(glfwWindowAddress);
 
-    // This line is critical for LWJGL's interoperation with GLFW's
-    // OpenGL context, or any context hat is managed externally.
     // LWJGL detects the context that is current in the current thread,
     // creates the GLCapabilities instance and makes the OpenGL
     // bindings available for use.
@@ -93,14 +81,12 @@ public class Window {
   }
 
   public void loop() {
-    while (!glfwWindowShouldClose(glfwWindow)) {
-      // Poll events
+    while (!glfwWindowShouldClose(glfwWindowAddress)) {
       glfwPollEvents();
 
-      glClearColor(r, g, b, a);
       glClear(GL_COLOR_BUFFER_BIT);
 
-      glfwSwapBuffers(glfwWindow);
+      glfwSwapBuffers(glfwWindowAddress);
     }
   }
 }
