@@ -4,32 +4,32 @@ import static org.lwjgl.glfw.GLFW.GLFW_PRESS;
 import static org.lwjgl.glfw.GLFW.GLFW_RELEASE;
 
 public class KeyListener {
-  private static KeyListener instance;
+  private static KeyListener keyListenerInstance;
   private final boolean[] keyPressed = new boolean[350];
 
   private KeyListener() {
 
   }
 
-  public static KeyListener get() {
-    if (instance == null) {
-      instance = new KeyListener();
+  public static KeyListener getKeyListenerInstance() {
+    if (keyListenerInstance == null) {
+      keyListenerInstance = new KeyListener();
     }
 
-    return instance;
+    return keyListenerInstance;
   }
   
-  public static void keyCallback(long window, int key, int scancode, int action, int mods) {
-    if (action == GLFW_PRESS) {
-      get().keyPressed[key] = true;
-    } else if (action == GLFW_RELEASE) {
-      get().keyPressed[key] = false;
+  public static void keyCallback(long glfwWindowAddress, int keyButtonID, int scancode, int keyActionID, int glfwMods) {
+    if (keyActionID == GLFW_PRESS) {
+      getKeyListenerInstance().keyPressed[keyButtonID] = true;
+    } else if (keyActionID == GLFW_RELEASE) {
+      getKeyListenerInstance().keyPressed[keyButtonID] = false;
     }
   }
 
-  public static boolean isKeyPressed(int keyCode) {
-    if (keyCode < get().keyPressed.length) {
-      return get().keyPressed[keyCode];
+  public static boolean isKeyPressed(int keyButtonID) {
+    if (keyButtonID < getKeyListenerInstance().keyPressed.length) {
+      return getKeyListenerInstance().keyPressed[keyButtonID];
     }
 
     return false;

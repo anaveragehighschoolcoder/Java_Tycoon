@@ -2,6 +2,7 @@ package jade;
 
 import org.lwjgl.glfw.GLFWErrorCallback;
 import org.lwjgl.opengl.GL;
+import util.Time;
 
 import static org.lwjgl.glfw.Callbacks.glfwFreeCallbacks;
 import static org.lwjgl.glfw.GLFW.*;
@@ -15,10 +16,26 @@ public class Window {
 
   private static Window windowInstance = null;
 
+  private static Scene currentScene = null;
+
   private Window() {
     this.windowWidth = 1920;
     this.windowHeight = 1080;
     this.windowTitle = "Mario";
+  }
+
+  public static void changeScene(int newSceneNumber) {
+    switch (newSceneNumber) {
+      case 0:
+        currentScene = new LevelEditorScene();
+        break;
+      case 1:
+        currentScene = new LevelScene();
+        break;
+      default:
+        assert false : "Unknown Scene `" + newSceneNumber + "`";
+        break;
+    }
   }
 
   public static Window getWindowInstance() {
@@ -78,15 +95,29 @@ public class Window {
     // creates the GLCapabilities instance and makes the OpenGL
     // bindings available for use.
     GL.createCapabilities();
+
+    changeScene(0);
   }
 
   public void loop() {
+    float beginTimeSeconds = Time.getTimeSeconds();
+    float endTimeSeconds;
+    float deltaTimeSeconds = -1.0f;
+
     while (!glfwWindowShouldClose(glfwWindowAddress)) {
       glfwPollEvents();
 
       glClear(GL_COLOR_BUFFER_BIT);
 
+      if (deltaTimeSeconds >= 0) {
+        currentScene.update(deltaTimeSeconds);
+      }
+
       glfwSwapBuffers(glfwWindowAddress);
+
+      endTimeSeconds = Time.getTimeSeconds();
+      deltaTimeSeconds = endTimeSeconds - beginTimeSeconds;
+      beginTimeSeconds = endTimeSeconds;
     }
   }
 }
